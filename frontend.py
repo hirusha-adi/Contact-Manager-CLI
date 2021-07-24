@@ -13,7 +13,7 @@ class bc:
 
 def CONTACT_PROGRAM_ENTIRE_PROGRAM():
 
-    if os.path.isfile("log.txt") == True:
+    if os.path.isfile("log_status.txt") == True:
         pass
     else:
         with open("log_status.txt", 'w') as file:
@@ -32,7 +32,7 @@ def CONTACT_PROGRAM_ENTIRE_PROGRAM():
         file = open("log.txt", "w")
         file.write(f'\n{datetime.datetime.now()} - Log File Created')
         if logs == "on":
-            file.write(f'\nLogging is enebled')
+            file.write(f'\nLogging is enabled')
         else:
             file.write(f'\nLogging is disabled')
         file.close()
@@ -72,11 +72,15 @@ def CONTACT_PROGRAM_ENTIRE_PROGRAM():
     # cls
     cls_wl = ["clear", "cls", "clearconsole", "clear console"]
     # switch log on
-    logsoff_wl = ["logon", "log on", "enable log", "logenable", "log enable", "onlog", "logon"]
+    logson_wl = ["logon", "log on", "enable log", "logenable", "log enable", "onlog", "logon"]
     # switch log off
     logsoff_wl = ["logoff", "log off", "disable log", "logdisable", "log disable", "offlog", "logoff"]
-    # save to file
-    save_file_wl = ["save to file", "make file", "save", "file", "text", "make text", "create", "output", "save all", "saveall"]
+    # save to file - txt
+    save_file_wl = ["save to file", "make file", "save", "file", "text", "make text", "create", "output", "save all", "saveall", "txt"]
+    # save to file - csv
+    csv_file_wl = ["csv", "comma separated values", "comma separated value", "spreadsheet"]
+    # help
+    help_wl = ["help", "how", "how to", "support"]
 
     # PROGRAM STARTS HERE ---------------
 
@@ -99,11 +103,11 @@ def CONTACT_PROGRAM_ENTIRE_PROGRAM():
             namei = input(f'{bc.Y}+ Name: {bc.A}')
             numberi = input(f'{bc.Y}+ Number: {bc.A}')
             backend.insert(namei.lower(), numberi.lower())
-            print(f'\n{bc.G}+ Added {namei.lower()} - {numberi.lower()} to the database{bc.A}')
+            print(f'\n{bc.G}+ Added: {namei.lower()} - {numberi.lower()} to the database{bc.A}')
 
             if logs == "on":
                 file = open("log.txt", "a")
-                file.write(f'\n{datetime.datetime.now()} - Added {namei.lower()} - {numberi.lower()} to the database')
+                file.write(f'\n{datetime.datetime.now()} - Added: {namei.lower()} - {numberi.lower()} to the database')
                 file.close()
             else:
                 pass
@@ -136,6 +140,23 @@ def CONTACT_PROGRAM_ENTIRE_PROGRAM():
         if logs == "on":
             file = open("log.txt", "a")
             file.write(f'\n{datetime.datetime.now()} - Saved all contacts to a text file')
+            file.close()
+        else:
+            pass
+    
+    elif main_choice.lower() in csv_file_wl:
+        CLEAR_NL()
+        fc = backend.view()
+
+        fileout = open("saved_csv.csv", "w+")
+        fileout.write(f'ID,Name,Number')
+        for i in fc:
+            fileout.write(f'\n{i[0]},{i[1]},{i[2]}')
+        fileout.close()
+
+        if logs == "on":
+            file = open("log.txt", "a")
+            file.write(f'\n{datetime.datetime.now()} - Saved all contacts to a csv file')
             file.close()
         else:
             pass
@@ -176,7 +197,8 @@ Use command 'view' to show all the Names, Numbers and ID""")
             print(f'{bc.R}\nNo results found!{bc.A}')
             log_finds = "No results found"
         else:
-            print(result)
+            for i in result:
+                print(f'\nID: {i[0]}\nName: {i[1]}\nNumber: {i[2]}')
             log_finds = "Found results"
 
 
@@ -195,14 +217,54 @@ Use command 'view' to show all the Names, Numbers and ID""")
             filelogs2 = open("log_status.txt", "w")
             filelogs2.write("off")
             filelogs2.close()
+            print(f'+ Disabled Logging!')
+
+            if logs == "on":
+                file = open("log.txt", "a")
+                file.write(f'\n{datetime.datetime.now()} - Disabled Logging')
+                file.close()
+            else:
+                pass
+
         except Exception as e:
             print(f'{bc.R}\nError has occurred: {e}{bc.A}')
     
-    elif main_choice.lower() in logsoff_wl:
+    elif main_choice.lower() in logson_wl:
         try:
             filelogs2 = open("log_status.txt", "w")
             filelogs2.write("on")
             filelogs2.close()
+            print(f'+ Enabled Logging!')
+
+            if logs == "on":
+                file = open("log.txt", "a")
+                file.write(f'\n{datetime.datetime.now()} - Enabled Logging')
+                file.close()
+            else:
+                pass
+
+        except Exception as e:
+            print(f'{bc.R}\nError has occurred: {e}{bc.A}')
+        
+    elif main_choice.lower() in help_wl:
+        try:
+            print(f'''{bc.Y}
+new --> Create a new contact
+view --> Show all the saved contacts
+delete --> Delete contact with ID
+find --> Search for a contact 
+( with name and number, hit enter if you dont know )
+logon --> Enable Logging (you can do this manually too)
+logogg --> Disable Logging (you can do this manually too)
+save --> Save the contacts to a text file in a readable format
+help --> show this!
+{bc.A}''')
+            if logs == "on":
+                file = open("log.txt", "a")
+                file.write(f'\n{datetime.datetime.now()} - Showing Help')
+                file.close()
+            else:
+                pass
         except Exception as e:
             print(f'{bc.R}\nError has occurred: {e}{bc.A}')
 
@@ -214,8 +276,38 @@ Use command 'view' to show all the Names, Numbers and ID""")
 
 
 if __name__ == '__main__':
-    while True:
-        CONTACT_PROGRAM_ENTIRE_PROGRAM()
+    try:
+        try:
+            filelogs1 = open("log_status.txt", "r")
+            logs = filelogs1.read()
+            filelogs1.close()
+        except Exception as e:
+            print(f'{bc.R}\nError has occurred: {e}{bc.A}')
+
+        if logs == "on":
+            file = open("log.txt", "a")
+            file.write(f'\n{datetime.datetime.now()} - Opened the program!')
+            file.close()
+        else:
+            pass
+        while True:
+            CONTACT_PROGRAM_ENTIRE_PROGRAM()
+    except Exception as e:
+        print(f'An Error has occured: {e}')
+    finally:
+        try:
+            filelogs1 = open("log_status.txt", "r")
+            logs = filelogs1.read()
+            filelogs1.close()
+        except Exception as e:
+            print(f'{bc.R}\nError has occurred: {e}{bc.A}')
+
+        if logs == "on":
+            file = open("log.txt", "a")
+            file.write(f'\n{datetime.datetime.now()} - Program Closed')
+            file.close()
+        else:
+            pass
 
 
 
